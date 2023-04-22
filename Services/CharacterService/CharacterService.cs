@@ -32,6 +32,33 @@ namespace dotnet_rpg.Services.CharacterService
             return serviceResponse;
         }
 
+        public async Task<ServiceResponse<List<GetCharacterResponseDto>>> DeleteCharacter(int id)
+        {
+            var serviceResponse = new ServiceResponse<List<GetCharacterResponseDto>>();
+
+            try
+            {
+                var character = characters.FirstOrDefault(c =>
+                    c.Id == id
+                );
+
+                if (character is null)
+                    throw new Exception($"Character with Id '{id}' not found");
+
+                characters.Remove(character);
+
+                serviceResponse.Data = characters.Select(c =>
+                _mapper.Map<GetCharacterResponseDto>(c)).ToList();
+            }
+            catch (Exception e)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = e.Message;
+            }
+
+            return serviceResponse;
+        }
+
         public async Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterResponseDto>>();
@@ -58,18 +85,30 @@ namespace dotnet_rpg.Services.CharacterService
         {
             var serviceResponse = new ServiceResponse<GetCharacterResponseDto>();
 
-            var character = characters.FirstOrDefault(c =>
-                c.Id == updatedCharacter.Id
-            );
+            try
+            {
+                var character = characters.FirstOrDefault(c =>
+                    c.Id == updatedCharacter.Id
+                );
 
-            character.Name = updatedCharacter.Name;
-            character.HitPoints = updatedCharacter.HitPoints;
-            character.Strength = updatedCharacter.Strength;
-            character.Intelligence = updatedCharacter.Intelligence;
-            character.Defence = updatedCharacter.Defence;
-            character.Class = updatedCharacter.Class;
+                if (character is null)
+                    throw new Exception($"Character with Id '{updatedCharacter.Id}' not found");
 
-            serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(character);
+                character.Name = updatedCharacter.Name;
+                character.HitPoints = updatedCharacter.HitPoints;
+                character.Strength = updatedCharacter.Strength;
+                character.Intelligence = updatedCharacter.Intelligence;
+                character.Defence = updatedCharacter.Defence;
+                character.Class = updatedCharacter.Class;
+
+                serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(character);
+            }
+            catch (Exception e)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = e.Message;
+            }
+
             return serviceResponse;
         }
     }
