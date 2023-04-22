@@ -1,3 +1,4 @@
+global using AutoMapper;
 global using dotnet_rpg.Models;
 global using dotnet_rpg.Services.CharacterService;
 
@@ -9,6 +10,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 // Make the API know they need to use the CharacterService class 
 // whenever the Controller wants to inject the ICharacterService

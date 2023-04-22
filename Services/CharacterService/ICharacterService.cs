@@ -1,3 +1,5 @@
+using dotnet_rpg.DTOs.Character;
+
 namespace dotnet_rpg.Services.CharacterService
 {
     public interface ICharacterService
@@ -8,8 +10,22 @@ namespace dotnet_rpg.Services.CharacterService
         // Make methods asynchronous by adding the await operator. (in this case in the CharacterController)
 
         // They get ServiceResponse to implement that wrapper and send additional info to the frontend.
-        Task<ServiceResponse<List<Character>>> GetAllCharacters();
-        Task<ServiceResponse<Character>> GetCharacterById(int id);
-        Task<ServiceResponse<List<Character>>> AddCharacter(Character newCharacter);
+
+        Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters();
+
+        Task<ServiceResponse<GetCharacterResponseDto>> GetCharacterById(int id);
+
+        Task<ServiceResponse<List<GetCharacterResponseDto>>> AddCharacter(AddCharacterRequestDto newCharacter);
+
+        Task<ServiceResponse<GetCharacterResponseDto>> UpdateCharacter(UpdateCharacterRequestDto updatedCharacter);
     }
 }
+
+// On DTO's:
+
+// BEFORE: the Character Entity was used
+/*  Task<ServiceResponse<List<Character>>> AddCharacter(Character newCharacter);(); */
+
+// AFTER: the Dto was used
+/* Task<ServiceResponse<List<GetCharacterResponseDto>>> AddCharacter(AddCharacterRequestDto newCharacter); */
+

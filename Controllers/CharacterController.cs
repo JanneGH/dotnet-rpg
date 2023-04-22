@@ -1,4 +1,4 @@
-using dotnet_rpg.Services.CharacterService;
+using dotnet_rpg.DTOs.Character;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_rpg.Controllers
@@ -29,7 +29,7 @@ namespace dotnet_rpg.Controllers
         [HttpGet("GetAllCharacters")]
         // If you use just IActionResult Get(), Swagger shows no schemas or expected results. 
         // That is why ActionResult<T> is used.
-        public async Task<ActionResult<ServiceResponse<List<Character>>>> GetAllCharacters()
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterResponseDto>>>> GetAllCharacters()
         {
             // TODO: Add code if get fails
             // TODO: Add logging
@@ -39,7 +39,7 @@ namespace dotnet_rpg.Controllers
         // We send the data via the URL (not the body of the request)
         // TODO: Check openApi standards
         [HttpGet("{id}")]
-        public async Task<ActionResult<ServiceResponse<List<Character>>>> GetSingleCharacter(int id)
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterResponseDto>>>> GetSingleCharacter(int id)
         {
             // TODO: Add code if get fails
             // TODO: Add logging
@@ -52,9 +52,15 @@ namespace dotnet_rpg.Controllers
         // service creates new character based on the JSON data.
         // The data (JSON object) is sent through the body of the request.
         [HttpPost("AddCharacter")]
-        public async Task<ActionResult<ServiceResponse<List<Character>>>> AddCharacter(Character newCharacter)
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterResponseDto>>>> AddCharacter(AddCharacterRequestDto newCharacter)
         {
             return Ok(await _characterService.AddCharacter(newCharacter));
+        }
+
+        [HttpPut("UpdateCharacter")]
+        public async Task<ActionResult<ServiceResponse<GetCharacterResponseDto>>> UpdateCharacter(UpdateCharacterRequestDto updatedCharacter)
+        {
+            return Ok(await _characterService.UpdateCharacter(updatedCharacter));
         }
     }
 }
