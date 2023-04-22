@@ -7,30 +7,48 @@ namespace dotnet_rpg.Services.CharacterService
             new Character { Id = 1, Name = "Ali Baba" }
         };
 
-        public List<Character> AddCharacter(Character newCharacter)
+        public async Task<ServiceResponse<List<Character>>> AddCharacter(Character newCharacter)
         {
+            var serviceResponse = new ServiceResponse<List<Character>>();
             characters.Add(newCharacter);
-            return characters;
+            serviceResponse.Data = characters;
+            return serviceResponse;
         }
 
-        public List<Character> GetAllCharacters()
+        public async Task<ServiceResponse<List<Character>>> GetAllCharacters()
         {
-            return characters;
+            var serviceResponse = new ServiceResponse<List<Character>>();
+            serviceResponse.Data = characters;
+            return serviceResponse;
         }
 
-        public Character GetCharacterById(int id)
+        public async Task<ServiceResponse<Character>> GetCharacterById(int id)
         {
+            var serviceResponse = new ServiceResponse<Character>();
+
+            // Use LINQ to find character by Id. 
             var character = characters.FirstOrDefault(character =>
                 character.Id == id
             );
 
-            if (character is not null)
-            {
-                return character;
-            }
-
-            // TODO: better exception throwing.
-            throw new Exception("Character not found");
+            serviceResponse.Data = character;
+            return serviceResponse;
         }
     }
 }
+
+/// More on the ServiceResponse Wrapper:
+
+// BEFORE 
+/*  public async Task<List<Character>> GetAllCharacters()
+    {
+        return characters;
+    }*/
+
+// AFTER
+/*  public async Task<ServiceResponse<List<Character>>> GetAllCharacters()
+    {
+        var serviceResponse = new ServiceResponse<List<Character>>();
+        serviceResponse.Data = characters;
+        return serviceResponse;
+    }*/

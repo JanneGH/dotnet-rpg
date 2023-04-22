@@ -2,8 +2,14 @@ namespace dotnet_rpg.Services.CharacterService
 {
     public interface ICharacterService
     {
-        List<Character> GetAllCharacters();
-        Character GetCharacterById(int id);
-        List<Character> AddCharacter(Character newCharacter);
+        // These methods are tasks to be able to make them async (Tasks are always async)
+        // meaning if one thread is busy you don't have to wait for it to be finished, threads can excecute asynchronously.
+        // You'd do this if you know that you'll have a large application.
+        // Make methods asynchronous by adding the await operator. (in this case in the CharacterController)
+
+        // They get ServiceResponse to implement that wrapper and send additional info to the frontend.
+        Task<ServiceResponse<List<Character>>> GetAllCharacters();
+        Task<ServiceResponse<Character>> GetCharacterById(int id);
+        Task<ServiceResponse<List<Character>>> AddCharacter(Character newCharacter);
     }
 }

@@ -29,22 +29,22 @@ namespace dotnet_rpg.Controllers
         [HttpGet("GetAllCharacters")]
         // If you use just IActionResult Get(), Swagger shows no schemas or expected results. 
         // That is why ActionResult<T> is used.
-        public ActionResult<List<Character>> GetAllCharacters()
+        public async Task<ActionResult<ServiceResponse<List<Character>>>> GetAllCharacters()
         {
             // TODO: Add code if get fails
             // TODO: Add logging
-            return Ok(_characterService.GetAllCharacters());
+            return Ok(await _characterService.GetAllCharacters());
         }
 
         // We send the data via the URL (not the body of the request)
         // TODO: Check openApi standards
         [HttpGet("{id}")]
-        public ActionResult<List<Character>> GetSingleCharacter(int id)
+        public async Task<ActionResult<ServiceResponse<List<Character>>>> GetSingleCharacter(int id)
         {
             // TODO: Add code if get fails
             // TODO: Add logging
             // Using LINQ to get Character with Id 1
-            return Ok(_characterService.GetCharacterById(id));
+            return Ok(await _characterService.GetCharacterById(id));
         }
 
         // Create new character.
@@ -52,9 +52,9 @@ namespace dotnet_rpg.Controllers
         // service creates new character based on the JSON data.
         // The data (JSON object) is sent through the body of the request.
         [HttpPost("AddCharacter")]
-        public ActionResult<List<Character>> AddCharacter(Character newCharacter)
+        public async Task<ActionResult<ServiceResponse<List<Character>>>> AddCharacter(Character newCharacter)
         {
-            return Ok(_characterService.AddCharacter(newCharacter));
+            return Ok(await _characterService.AddCharacter(newCharacter));
         }
     }
 }
