@@ -1,4 +1,5 @@
 global using dotnet_rpg.Models;
+global using dotnet_rpg.Services.CharacterService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,17 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Make the API know they need to use the CharacterService class 
+// whenever the Controller wants to inject the ICharacterService
+// DI: If you want to change CharacterService and use another implementation class,
+// simply change CharacterService and all controllers injecting ICharacterService will follow.
+
+// AddScoped: create a new instance of the requested service for every request that comes in. 
+// AddTransient: create a new instance to every Controller and every Service even within the same request
+// AddSingleton creates one instance that is used for every request.
+
+builder.Services.AddScoped<ICharacterService, CharacterService>();
 
 var app = builder.Build();
 

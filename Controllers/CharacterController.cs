@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using dotnet_rpg.Services.CharacterService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_rpg.Controllers
@@ -14,10 +11,12 @@ namespace dotnet_rpg.Controllers
     // For View support use Controller base class.
     public class CharacterController : ControllerBase
     {
-        private static List<Character> characters = new List<Character>() {
-            new Character(),
-            new Character { Id = 1, Name = "Ali Baba" }
-        };
+        private readonly ICharacterService _characterService;
+
+        public CharacterController(ICharacterService characterService)
+        {
+            _characterService = characterService;
+        }
 
         /// SUMMARY about GET methods in an API ///
         //Even though WebApi supports naming conventions and will assume a GET request if you start it with "Get", 
@@ -34,7 +33,7 @@ namespace dotnet_rpg.Controllers
         {
             // TODO: Add code if get fails
             // TODO: Add logging
-            return Ok(characters);
+            return Ok(_characterService.GetAllCharacters());
         }
 
         // We send the data via the URL (not the body of the request)
@@ -45,9 +44,7 @@ namespace dotnet_rpg.Controllers
             // TODO: Add code if get fails
             // TODO: Add logging
             // Using LINQ to get Character with Id 1
-            return Ok(characters.FirstOrDefault(character =>
-                character.Id == id
-            ));
+            return Ok(_characterService.GetCharacterById(id));
         }
 
         // Create new character.
@@ -57,8 +54,7 @@ namespace dotnet_rpg.Controllers
         [HttpPost("AddCharacter")]
         public ActionResult<List<Character>> AddCharacter(Character newCharacter)
         {
-            characters.Add(newCharacter);
-            return Ok(characters);
+            return Ok(_characterService.AddCharacter(newCharacter));
         }
     }
 }
