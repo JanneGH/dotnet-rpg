@@ -120,7 +120,10 @@ namespace dotnet_rpg.Services.CharacterService
 /*  public async Task<List<Character>> GetAllCharacters()
     {
         return characters;
-    }*/
+    }
+    In swagger you see the data object as a list of characters.
+    */
+
 
 // AFTER
 /*  public async Task<ServiceResponse<List<Character>>> GetAllCharacters()
@@ -128,7 +131,9 @@ namespace dotnet_rpg.Services.CharacterService
         var serviceResponse = new ServiceResponse<List<Character>>();
         serviceResponse.Data = characters;
         return serviceResponse;
-    }*/
+    }
+    In Swagger you see a data object with the data (second level is the character info, was first level BEFORE.
+    Plus the issuccess and message properties of the wrapper at first level (relating to ServiceResponse.cs)*/
 
 // More on DTO's and why Automapper is used
 // Using DTO's as a type and having the Data as a different type causes errors.
