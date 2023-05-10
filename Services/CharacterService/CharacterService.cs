@@ -1,3 +1,4 @@
+using dotnet_rpg.Data;
 using dotnet_rpg.DTOs.Character;
 
 namespace dotnet_rpg.Services.CharacterService
@@ -10,9 +11,13 @@ namespace dotnet_rpg.Services.CharacterService
         };
 
         private readonly IMapper _mapper;
-        public CharacterService(IMapper mapper)
+        private readonly DataContext _context;
+
+        // Inject mapper & context so they are available in CharacterService
+        public CharacterService(IMapper mapper, DataContext context)
         {
             _mapper = mapper;
+            _context = context;
         }
 
         public async Task<ServiceResponse<List<GetCharacterResponseDto>>> AddCharacter(AddCharacterRequestDto newCharacter)
@@ -20,16 +25,21 @@ namespace dotnet_rpg.Services.CharacterService
             var serviceResponse = new ServiceResponse<List<GetCharacterResponseDto>>();
 
             var character = _mapper.Map<Character>(newCharacter);
-            // Add this to assign the next highest value to the Character Id instead of it defaulting to 0 because the DTO no longer contains the Id.
-            // When using Entity Framework this is no longer necessary.
-            character.Id = characters.Max(c => c.Id) + 1;
 
-            characters.Add(character);
+            _context.Characters.Add(character);
 
-            serviceResponse.Data = characters.Select(c =>
-                _mapper.Map<GetCharacterResponseDto>(c)).ToList();
+            // writes characters to db and writes a new id for the character.
+            await _context.SaveChangesAsync();
+
+            serviceResponse.Data = await _context.Characters.Select(c =>
+                _mapper.Map<GetCharacterResponseDto>(c)).ToListAsync();
 
             return serviceResponse;
+
+            //PS
+            // The below was added to assign the next highest value to the Character Id instead of it defaulting to 0 because the DTO no longer contains the Id.
+            // When using SQL Server it is no longer necessary (automatically done)
+            //character.Id = characters.Max(c => c.Id) + 1;
         }
 
         public async Task<ServiceResponse<List<GetCharacterResponseDto>>> DeleteCharacter(int id)
@@ -62,7 +72,9 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterResponseDto>>();
-            serviceResponse.Data = characters.Select(c =>
+            // below the Characters table is accessed with _context. This is possible because the DataContext was injected in the constructor above.
+            var dbCharacters = await _context.Characters.ToListAsync();
+            serviceResponse.Data = dbCharacters.Select(c =>
                 _mapper.Map<GetCharacterResponseDto>(c)).ToList();
 
             return serviceResponse;
@@ -71,13 +83,12 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<GetCharacterResponseDto>> GetCharacterById(int id)
         {
             var serviceResponse = new ServiceResponse<GetCharacterResponseDto>();
-
             // Use LINQ to find character by Id. 
-            var character = characters.FirstOrDefault(c =>
+            var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c =>
                 c.Id == id
             );
 
-            serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(character);
+            serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(dbCharacter);
             return serviceResponse;
         }
 
