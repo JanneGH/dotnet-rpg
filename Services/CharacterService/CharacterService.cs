@@ -5,10 +5,12 @@ namespace dotnet_rpg.Services.CharacterService
 {
     public class CharacterService : ICharacterService
     {
+        /*For only developing in Swagger (not db) create a static character list 
         private static List<Character> characters = new List<Character>() {
             new Character(),
             new Character { Id = 1, Name = "Ali Baba" }
         };
+        */
 
         private readonly IMapper _mapper;
         private readonly DataContext _context;
@@ -20,19 +22,30 @@ namespace dotnet_rpg.Services.CharacterService
             _context = context;
         }
 
+        // In the CRUD operations below the Characters table is accessed with _context. 
+        // This is possible because the DataContext was injected in the constructor above.
+
         public async Task<ServiceResponse<List<GetCharacterResponseDto>>> AddCharacter(AddCharacterRequestDto newCharacter)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterResponseDto>>();
 
-            var character = _mapper.Map<Character>(newCharacter);
+            try
+            {
+                var character = _mapper.Map<Character>(newCharacter);
 
-            _context.Characters.Add(character);
+                _context.Characters.Add(character);
 
-            // writes characters to db and writes a new id for the character.
-            await _context.SaveChangesAsync();
+                // writes characters to db and writes a new id for the character.
+                await _context.SaveChangesAsync();
 
-            serviceResponse.Data = await _context.Characters.Select(c =>
-                _mapper.Map<GetCharacterResponseDto>(c)).ToListAsync();
+                serviceResponse.Data = await _context.Characters.Select(c =>
+                    _mapper.Map<GetCharacterResponseDto>(c)).ToListAsync();
+            }
+            catch (Exception e)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = e.Message;
+            }
 
             return serviceResponse;
 
@@ -48,17 +61,22 @@ namespace dotnet_rpg.Services.CharacterService
 
             try
             {
-                var character = characters.FirstOrDefault(c =>
+                // retrieve the character
+                var character = await _context.Characters.FirstOrDefaultAsync(c =>
                     c.Id == id
                 );
 
                 if (character is null)
                     throw new Exception($"Character with Id '{id}' not found");
 
-                characters.Remove(character);
+                // remove with EF
+                _context.Characters.Remove(character);
+                // save above Remove() change to db
+                await _context.SaveChangesAsync();
 
-                serviceResponse.Data = characters.Select(c =>
-                _mapper.Map<GetCharacterResponseDto>(c)).ToList();
+                // Get response with updated list of characters
+                serviceResponse.Data = await _context.Characters.Select(c =>
+                _mapper.Map<GetCharacterResponseDto>(c)).ToListAsync();
             }
             catch (Exception e)
             {
@@ -72,10 +90,18 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterResponseDto>>();
-            // below the Characters table is accessed with _context. This is possible because the DataContext was injected in the constructor above.
-            var dbCharacters = await _context.Characters.ToListAsync();
-            serviceResponse.Data = dbCharacters.Select(c =>
-                _mapper.Map<GetCharacterResponseDto>(c)).ToList();
+
+            try
+            {
+                var dbCharacters = await _context.Characters.ToListAsync();
+                serviceResponse.Data = dbCharacters.Select(c =>
+                    _mapper.Map<GetCharacterResponseDto>(c)).ToList();
+            }
+            catch (Exception e)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = e.Message;
+            }
 
             return serviceResponse;
         }
@@ -83,12 +109,21 @@ namespace dotnet_rpg.Services.CharacterService
         public async Task<ServiceResponse<GetCharacterResponseDto>> GetCharacterById(int id)
         {
             var serviceResponse = new ServiceResponse<GetCharacterResponseDto>();
-            // Use LINQ to find character by Id. 
-            var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c =>
-                c.Id == id
-            );
 
-            serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(dbCharacter);
+            try
+            {
+                // Use LINQ to find character by Id. 
+                var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c =>
+                    c.Id == id
+                );
+
+                serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(dbCharacter);
+            }
+            catch (Exception e)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = e.Message;
+            }
             return serviceResponse;
         }
 
@@ -98,19 +133,24 @@ namespace dotnet_rpg.Services.CharacterService
 
             try
             {
-                var character = characters.FirstOrDefault(c =>
+                // recieve character from db
+                var character = await _context.Characters.FirstOrDefaultAsync(c =>
                     c.Id == updatedCharacter.Id
                 );
 
                 if (character is null)
                     throw new Exception($"Character with Id '{updatedCharacter.Id}' not found");
 
+                // change the values
                 character.Name = updatedCharacter.Name;
                 character.HitPoints = updatedCharacter.HitPoints;
                 character.Strength = updatedCharacter.Strength;
                 character.Intelligence = updatedCharacter.Intelligence;
                 character.Defence = updatedCharacter.Defence;
                 character.Class = updatedCharacter.Class;
+
+                // save to database (no update method needed, all properties and calling the changes async is enough).
+                await _context.SaveChangesAsync();
 
                 serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(character);
             }
