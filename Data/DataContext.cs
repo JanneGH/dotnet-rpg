@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-
 namespace dotnet_rpg.Data
 {
     public class DataContext : DbContext
@@ -17,5 +11,7 @@ namespace dotnet_rpg.Data
         // The name is the name of the table.
         // Whenever you want to see a representation of your model in the database you have to add a DbSet of that model.
         public DbSet<Character> Characters => Set<Character>();
+
+        public DbSet<User> Users => Set<User>();
     }
 }

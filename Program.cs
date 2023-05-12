@@ -30,6 +30,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 // AddSingleton creates one instance that is used for every request.
 
 builder.Services.AddScoped<ICharacterService, CharacterService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 var app = builder.Build();
 
