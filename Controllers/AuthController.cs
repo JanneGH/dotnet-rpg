@@ -1,5 +1,5 @@
 using dotnet_rpg.Data;
-using dotnet_rpg.DTOs.Character.User;
+using dotnet_rpg.DTOs.User;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_rpg.Controllers

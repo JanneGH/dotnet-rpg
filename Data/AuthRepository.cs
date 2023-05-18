@@ -1,11 +1,18 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+
 namespace dotnet_rpg.Data
 {
     public class AuthRepository : IAuthRepository
     {
         private readonly DataContext _context;
+        private readonly IConfiguration _configuration;
 
-        public AuthRepository(DataContext context)
+        // With IConfiguraiton the access to the appsettingsfile is enabled
+        public AuthRepository(DataContext context, IConfiguration configuration)
         {
+            _configuration = configuration;
             _context = context;
         }
 
@@ -32,8 +39,7 @@ namespace dotnet_rpg.Data
             }
             else
             {
-                serviceResponse.Data = user.Id.ToString();
-                serviceResponse.Message = $"{user.Username} logged in";
+                serviceResponse.Data = CreateToken(user);
             }
 
             return serviceResponse;
@@ -67,9 +73,11 @@ namespace dotnet_rpg.Data
                 serviceResponse.IsSuccess = false;
                 serviceResponse.Message = e.Message;
             }
+
             return serviceResponse;
         }
 
+        // check if User exists. Public method in case it is useful somewhere else.
         public async Task<bool> UserExists(string username)
         {
             if (await _context.Users.AnyAsync(
@@ -93,13 +101,56 @@ namespace dotnet_rpg.Data
             }
         }
 
+        // Check for correct pass
         private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
             {
                 var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+
                 return computedHash.SequenceEqual(passwordHash);
             }
+        }
+
+        private string CreateToken(User user)
+        {
+            // var with {} = the {} is an 'object initializer'
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username)
+            };
+
+            var appsettingsToken = _configuration.GetSection("Appsettings:Token").Value;
+
+            if (appsettingsToken is null)
+                throw new Exception("appsettings token is null");
+
+            // microsoft identity implementation //
+
+            // create key with appsettingstoken
+            SymmetricSecurityKey key = new SymmetricSecurityKey(
+                System.Text.Encoding.UTF8.GetBytes(appsettingsToken)
+            );
+
+            // add credentials with a digest method when initializing
+            SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+
+            // initialize tokenDescriptor with values like Expiry
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = credentials // TODO links appsettings key to validate signature?
+            };
+
+            // System scurity implementation //
+
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+
+            // serializes token into JSON webtoken
+            return tokenHandler.WriteToken(token);
         }
     }
 }

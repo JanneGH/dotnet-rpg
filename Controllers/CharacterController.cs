@@ -1,11 +1,13 @@
 using dotnet_rpg.DTOs.Character;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_rpg.Controllers
 {
+    [Authorize]
     [ApiController]
     // TODO: Check openApi standards
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     // ControllerBase class has no view support.
     // View support not needed as we build an API.
     // For View support use Controller base class.
@@ -26,6 +28,7 @@ namespace dotnet_rpg.Controllers
         // You need routing attributes when you have more so the API knows which one to use.
 
         // TODO: Check openApi standards
+        //[AllowAnonymous] /// fun test: to make an exception to the general Authorize attribute
         [HttpGet("GetAllCharacters")]
         // If you use just IActionResult Get(), Swagger shows no schemas or expected results. 
         // That is why ActionResult<T> is used.
