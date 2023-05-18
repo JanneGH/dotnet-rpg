@@ -37,14 +37,7 @@ namespace dotnet_rpg.Controllers
         {
             // TODO: Add code if get fails
             // TODO: Add logging
-            /// Note that User here is the ControllerBase User object!
-            /// Gets the System.Security.Claims.ClaimsPrincipal for user associated with the
-            /// executing action.
-            // Only recieve characters that belong to a specific user.
-            int userId = int.Parse(User.Claims.FirstOrDefault(claims =>
-                claims.Type == ClaimTypes.NameIdentifier)!.Value);
-
-            return Ok(await _characterService.GetAllCharacters(userId));
+            return Ok(await _characterService.GetAllCharacters());
         }
 
         // Send the data via the URL (not the body of the request)
@@ -109,3 +102,12 @@ namespace dotnet_rpg.Controllers
 /// There are ways to influence this, but normally you send the entire object even if you only want to change one property.
 /// DELETE:
 /// Deletes the specified resource. Soft delete would be a PUT method.
+
+/// Back when the userId was passed as a parameter from the controller to the service,
+/// a specific "User" was called: 
+/// Note that User here is the ControllerBase (native) User object!
+/// Gets the System.Security.Claims.ClaimsPrincipal for user associated with the
+/// executing action.
+/// Only recieve characters that belong to a specific user.
+/// int userId = int.Parse(User.Claims.FirstOrDefault(claims =>
+/// claims.Type == ClaimTypes.NameIdentifier)!.Value);

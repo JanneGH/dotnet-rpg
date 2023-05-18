@@ -38,6 +38,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+/// register so when HttpContextAccessor is injected the API knows what to do with it.
+builder.Services.AddHttpContextAccessor();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 // Added the package Swashbuckle.AspNetCore.Filters to enable configuration

@@ -11,7 +11,7 @@ namespace dotnet_rpg.Services.CharacterService
 
         /// They get ServiceResponse to implement that wrapper and send additional info to the frontend.
 
-        Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters(int userId);
+        Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters();
 
         Task<ServiceResponse<GetCharacterResponseDto>> GetCharacterById(int id);
 

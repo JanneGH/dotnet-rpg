@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using dotnet_rpg.Data;
 using dotnet_rpg.DTOs.Character;
 
@@ -7,13 +8,18 @@ namespace dotnet_rpg.Services.CharacterService
     {
         private readonly IMapper _mapper;
         private readonly DataContext _context;
+        private readonly IHttpContextAccessor _httpContentAccessor;
 
         // Inject mapper & context so they are available in CharacterService
-        public CharacterService(IMapper mapper, DataContext context)
+        public CharacterService(IMapper mapper, DataContext context, IHttpContextAccessor httpContentAccessor)
         {
             _mapper = mapper;
             _context = context;
+            _httpContentAccessor = httpContentAccessor;
         }
+
+        private int GetuserId() => int.Parse(_httpContentAccessor.HttpContext!.User
+            .FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         /// In the CRUD operations below the Characters table is accessed with _context. 
         /// This is possible because the DataContext was injected in the constructor above.
@@ -25,14 +31,18 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 var character = _mapper.Map<Character>(newCharacter);
+                character.User = await _context.Users.FirstOrDefaultAsync(user =>
+                    user.Id == GetuserId());
 
                 _context.Characters.Add(character);
 
                 // writes characters to db and writes a new id for the character.
                 await _context.SaveChangesAsync();
 
-                serviceResponse.Data = await _context.Characters.Select(c =>
-                    _mapper.Map<GetCharacterResponseDto>(c)).ToListAsync();
+                serviceResponse.Data = await _context.Characters
+                    .Where(character => character.User!.Id == GetuserId())
+                    .Select(character => _mapper.Map<GetCharacterResponseDto>(character))
+                    .ToListAsync();
             }
             catch (Exception e)
             {
@@ -55,8 +65,8 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 // retrieve the character
-                var character = await _context.Characters.FirstOrDefaultAsync(c =>
-                    c.Id == id
+                var character = await _context.Characters.FirstOrDefaultAsync(character =>
+                    character.Id == id && character.User!.Id == GetuserId()
                 );
 
                 if (character is null)
@@ -68,8 +78,10 @@ namespace dotnet_rpg.Services.CharacterService
                 await _context.SaveChangesAsync();
 
                 // Get response with updated list of characters
-                serviceResponse.Data = await _context.Characters.Select(c =>
-                _mapper.Map<GetCharacterResponseDto>(c)).ToListAsync();
+                serviceResponse.Data = await _context.Characters
+                    .Where(character => character.User!.Id == GetuserId())
+                    .Select(character => _mapper.Map<GetCharacterResponseDto>(character))
+                    .ToListAsync();
             }
             catch (Exception e)
             {
@@ -80,17 +92,18 @@ namespace dotnet_rpg.Services.CharacterService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters(int userId)
+        public async Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters()
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterResponseDto>>();
 
             try
             {
                 // only get characters related to a specific user
+                /// passing the current user from the controller to the service
                 /// Entity Framework enables access to the user object and its ID
                 /// and get the characters that have the proper ID set in the db table.
                 var dbCharacters = await _context.Characters.Where(character =>
-                    character.User!.Id == userId).ToListAsync();
+                    character.User!.Id == GetuserId()).ToListAsync();
 
                 serviceResponse.Data = dbCharacters.Select(c =>
                     _mapper.Map<GetCharacterResponseDto>(c)).ToList();
@@ -111,8 +124,8 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 /// Use LINQ to find character by Id. 
-                var dbCharacter = await _context.Characters.FirstOrDefaultAsync(c =>
-                    c.Id == id
+                var dbCharacter = await _context.Characters.FirstOrDefaultAsync(character =>
+                        character.Id == id && character.User!.Id == GetuserId()
                 );
 
                 serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(dbCharacter);
@@ -132,11 +145,13 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 // recieve character from db
-                var character = await _context.Characters.FirstOrDefaultAsync(c =>
-                    c.Id == updatedCharacter.Id
+                var character = await _context.Characters
+                // to access related objects Include them
+                .Include(character => character.User)
+                .FirstOrDefaultAsync(character => character.Id == updatedCharacter.Id
                 );
 
-                if (character is null)
+                if (character is null || character.User!.Id != GetuserId())
                     throw new Exception($"Character with Id '{updatedCharacter.Id}' not found");
 
                 // change the values
@@ -188,9 +203,23 @@ namespace dotnet_rpg.Services.CharacterService
 /// More on DTO's and why Automapper is used:
 /// Using DTO's as a type and having the Data as a different type causes errors.
 
+/// before a db connection is set up:
 /*For only developing in Swagger (not db) create a static character list 
        private static List<Character> characters = new List<Character>() {
            new Character(),
            new Character { Id = 1, Name = "Ali Baba" }
        };
        */
+
+/// In a specific controller method it is possible to
+/// pass the current user from the controller to the service.
+/// This was changed in the code because a specific user is needed for more than one operation.
+/// This was the code in the GetAll request before that:
+/// only get characters related to a specific user
+/// passing the current user from the controller to the service
+
+/// Entity Framework enables access to the user object and its ID
+/// and get the characters that have the proper ID set in the db table.
+
+/// var dbCharacters = await _context.Characters.Where(character =>
+///    character.User!.Id == userId).ToListAsync();
