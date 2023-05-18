@@ -56,8 +56,8 @@ builder.Services.AddSwaggerGen(configuration =>
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-// Make the API know they need to use the CharacterService class 
-// whenever the Controller wants to inject the ICharacterService
+/// Make the API know they need to use the CharacterService class 
+/// whenever the Controller wants to inject the ICharacterService
 /// DI: If you want to change CharacterService and use another implementation class,
 /// simply change CharacterService and all controllers injecting ICharacterService will follow.
 
@@ -65,12 +65,13 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 /// AddTransient: create a new instance to every Controller and every Service even within the same request
 /// AddSingleton creates one instance that is used for every request.
 
+// inject the chcaracter service
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -80,9 +81,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 /// placement of Authentication is deliberate above Authorization.
-// add the dotnet core authentication middleware to the IApplicationBuilder
-// to enable authentication capabilities
-app.UseAuthentication(); // enables the Authorize Attribute for controllers for example.
+/// add the dotnet core authentication middleware to the IApplicationBuilder to
+// enable authentication capabilities
+app.UseAuthentication(); /// enables the Authorize Attribute for controllers for example.
 app.UseAuthorization();
 
 app.MapControllers();

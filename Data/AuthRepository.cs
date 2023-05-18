@@ -90,12 +90,12 @@ namespace dotnet_rpg.Data
         }
 
         // Using out parameter to set them in the Register method in the user object.
-        // The values are not returned because the out parameter is used. That is why they can be set or even somehow returned. 
+        /// The values are not returned because the out parameter is used. That is why they can be set or even somehow returned. 
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using (var hmac = new System.Security.Cryptography.HMACSHA512())
             {
-                // creating an instance of the HMAC class already generates a key that can be used
+                /// creating an instance of the HMAC class already generates a key that can be used
                 passwordSalt = hmac.Key;
                 passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
             }

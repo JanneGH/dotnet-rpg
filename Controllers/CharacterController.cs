@@ -21,17 +21,17 @@ namespace dotnet_rpg.Controllers
         }
 
         /// SUMMARY about GET methods in an API ///
-        //Even though WebApi supports naming conventions and will assume a GET request if you start it with "Get", 
-        // And even though it will work if you only have 1 GET method,
-        // the OpenApi standards ask for an HttpGet attribute.
-        // Just the attribute wil work if you only have 1 GET method.
-        // You need routing attributes when you have more so the API knows which one to use.
+        ///Even though WebApi supports naming conventions and will assume a GET request if you start it with "Get", 
+        /// And even though it will work if you only have 1 GET method,
+        /// the OpenApi standards ask for an HttpGet attribute.
+        /// Just the attribute wil work if you only have 1 GET method.
+        /// You need routing attributes when you have more so the API knows which one to use.
 
         // TODO: Check openApi standards
-        //[AllowAnonymous] /// fun test: to make an exception to the general Authorize attribute
+        ///[AllowAnonymous] /// fun test: to make an exception to the general Authorize attribute
         [HttpGet("GetAllCharacters")]
-        // If you use just IActionResult Get(), Swagger shows no schemas or expected results. 
-        // That is why ActionResult<T> is used.
+        /// If you use just IActionResult Get(), Swagger shows no schemas or expected results. 
+        /// That is why ActionResult<T> is used.
         public async Task<ActionResult<ServiceResponse<List<GetCharacterResponseDto>>>> GetAllCharacters()
         {
             // TODO: Add code if get fails
@@ -39,7 +39,7 @@ namespace dotnet_rpg.Controllers
             return Ok(await _characterService.GetAllCharacters());
         }
 
-        // We send the data via the URL (not the body of the request)
+        // Send the data via the URL (not the body of the request)
         // TODO: Check openApi standards
         [HttpGet("{id}")]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterResponseDto>>>> GetSingleCharacter(int id)
@@ -51,9 +51,9 @@ namespace dotnet_rpg.Controllers
         }
 
         // Create new character.
-        // The client (browser) sends JSON objects to service, 
-        // service creates new character based on the JSON data.
-        // The data (JSON object) is sent through the body of the request.
+        /// The client (browser) sends JSON objects to service, 
+        /// service creates new character based on the JSON data.
+        /// The data (JSON object) is sent through the body of the request.
         [HttpPost("AddCharacter")]
         public async Task<ActionResult<ServiceResponse<List<GetCharacterResponseDto>>>> AddCharacter(AddCharacterRequestDto newCharacter)
         {
@@ -91,13 +91,13 @@ namespace dotnet_rpg.Controllers
 }
 
 /// SUMMARY of GET, POST, PUT, DELETE ///
-// GET:
-// Requests a representation of the specified resource.
-// POST: 
-// Submit an entity to the specified resource, 
-// often causing a change in state or side effects on the server.
-// PUT:
-// Replaces ALL current respresentations of the target resource with the request payload.
-// There are ways to influence this, but normally you send the entire object even if you only want to change one property.
-// DELETE:
-// Deletes the specified resource. Soft delete would be a PUT method.
+/// GET:
+/// Requests a representation of the specified resource.
+/// POST: 
+/// Submit an entity to the specified resource, 
+/// often causing a change in state or side effects on the server.
+/// PUT:
+/// Replaces ALL current respresentations of the target resource with the request payload.
+/// There are ways to influence this, but normally you send the entire object even if you only want to change one property.
+/// DELETE:
+/// Deletes the specified resource. Soft delete would be a PUT method.
