@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using dotnet_rpg.DTOs.Character;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,9 +9,9 @@ namespace dotnet_rpg.Controllers
     [ApiController]
     // TODO: Check openApi standards
     [Route("[controller]")]
-    // ControllerBase class has no view support.
-    // View support not needed as we build an API.
-    // For View support use Controller base class.
+    /// ControllerBase class has no view support.
+    /// View support not needed as we build an API.
+    /// For View support use Controller base class.
     public class CharacterController : ControllerBase
     {
         private readonly ICharacterService _characterService;
@@ -29,14 +30,21 @@ namespace dotnet_rpg.Controllers
 
         // TODO: Check openApi standards
         ///[AllowAnonymous] /// fun test: to make an exception to the general Authorize attribute
-        [HttpGet("GetAllCharacters")]
+        [HttpGet("GetAll")]
         /// If you use just IActionResult Get(), Swagger shows no schemas or expected results. 
         /// That is why ActionResult<T> is used.
-        public async Task<ActionResult<ServiceResponse<List<GetCharacterResponseDto>>>> GetAllCharacters()
+        public async Task<ActionResult<ServiceResponse<List<GetCharacterResponseDto>>>> Get()
         {
             // TODO: Add code if get fails
             // TODO: Add logging
-            return Ok(await _characterService.GetAllCharacters());
+            /// Note that User here is the ControllerBase User object!
+            /// Gets the System.Security.Claims.ClaimsPrincipal for user associated with the
+            /// executing action.
+            // Only recieve characters that belong to a specific user.
+            int userId = int.Parse(User.Claims.FirstOrDefault(claims =>
+                claims.Type == ClaimTypes.NameIdentifier)!.Value);
+
+            return Ok(await _characterService.GetAllCharacters(userId));
         }
 
         // Send the data via the URL (not the body of the request)

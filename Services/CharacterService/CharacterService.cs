@@ -5,13 +5,6 @@ namespace dotnet_rpg.Services.CharacterService
 {
     public class CharacterService : ICharacterService
     {
-        /*For only developing in Swagger (not db) create a static character list 
-        private static List<Character> characters = new List<Character>() {
-            new Character(),
-            new Character { Id = 1, Name = "Ali Baba" }
-        };
-        */
-
         private readonly IMapper _mapper;
         private readonly DataContext _context;
 
@@ -87,13 +80,18 @@ namespace dotnet_rpg.Services.CharacterService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters()
+        public async Task<ServiceResponse<List<GetCharacterResponseDto>>> GetAllCharacters(int userId)
         {
             var serviceResponse = new ServiceResponse<List<GetCharacterResponseDto>>();
 
             try
             {
-                var dbCharacters = await _context.Characters.ToListAsync();
+                // only get characters related to a specific user
+                /// Entity Framework enables access to the user object and its ID
+                /// and get the characters that have the proper ID set in the db table.
+                var dbCharacters = await _context.Characters.Where(character =>
+                    character.User!.Id == userId).ToListAsync();
+
                 serviceResponse.Data = dbCharacters.Select(c =>
                     _mapper.Map<GetCharacterResponseDto>(c)).ToList();
             }
@@ -189,3 +187,10 @@ namespace dotnet_rpg.Services.CharacterService
 
 /// More on DTO's and why Automapper is used:
 /// Using DTO's as a type and having the Data as a different type causes errors.
+
+/*For only developing in Swagger (not db) create a static character list 
+       private static List<Character> characters = new List<Character>() {
+           new Character(),
+           new Character { Id = 1, Name = "Ali Baba" }
+       };
+       */
