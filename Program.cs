@@ -50,7 +50,7 @@ builder.Services.AddSwaggerGen(configuration =>
     // results in the Authorize button in Swagger :)
     configuration.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
     {
-        Description = """ Standard Authorization header using the bearer scheme. Example: "bearer {token}" """, /// new string handeling with """ so no escaping is needed anymore.
+        Description = """ Standard Authorization header using the bearer scheme. Example: "bearer {token}" """, /// .NET updated string handeling with """ so no escaping is needed anymore.
         In = ParameterLocation.Header,
         Name = "Authorization",
         Type = SecuritySchemeType.ApiKey
@@ -69,11 +69,11 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 /// AddTransient: create a new instance to every Controller and every Service even within the same request
 /// AddSingleton creates one instance that is used for every request.
 
-// inject the services
+// Register the services
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<IWeaponService, WeaponService>();
 
-// inject repository
+// Register repository
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 var app = builder.Build();

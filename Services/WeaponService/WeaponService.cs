@@ -14,6 +14,7 @@ namespace dotnet_rpg.Services.WeaponService
         public WeaponService(DataContext context, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _context = context;
+            // to get the currently authorized user:
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
         }
@@ -24,11 +25,12 @@ namespace dotnet_rpg.Services.WeaponService
 
             try
             {
-                // Get Character with the right Character ID in the Weapon object
-                // Check if Character is an object that belongs to the current authenticated User
+                // Get Character with the right Character ID in the Weapon object from the Character context
+                // Check if Character is an object that belongs to the current authorized User
                 var character = await _context.Characters
                     .FirstOrDefaultAsync(cha =>
                         cha.Id == newWeapon.CharacterId &&
+                        // Get the ID of the current User by accessing the NameIdentifyer claims value from the JSON webtoken.
                         cha.User!.Id == int.Parse(_httpContextAccessor.HttpContext!.User
                             .FindFirstValue(ClaimTypes.NameIdentifier)!)
                     );
@@ -42,6 +44,7 @@ namespace dotnet_rpg.Services.WeaponService
                 }
 
                 // new Weapon instance
+                /// TODO: alternatively add a new mapping from the AddWeaponRequestDto to the Weapon type (now the properties are manually set here)
                 var weapon = new Weapon
                 {
                     // add the given Name and Damage value to the new Weapon instance
@@ -58,6 +61,8 @@ namespace dotnet_rpg.Services.WeaponService
                 await _context.SaveChangesAsync();
 
                 // return character
+                /// Mapper: map the character (source) entity to the GetCharacterResponseDto (destination)
+                /// So mapper transfers data from the general entity to the DTO, as the DTO contains selected information (no ID for example) as a DTO does.
                 response.Data = _mapper.Map<GetCharacterResponseDto>(character);
 
             }
