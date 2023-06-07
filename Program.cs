@@ -4,6 +4,7 @@ global using dotnet_rpg.Services.CharacterService;
 global using Microsoft.EntityFrameworkCore;
 
 using dotnet_rpg.Data;
+using dotnet_rpg.Services.WeaponService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -68,8 +69,11 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 /// AddTransient: create a new instance to every Controller and every Service even within the same request
 /// AddSingleton creates one instance that is used for every request.
 
-// inject the chcaracter service
+// inject the services
 builder.Services.AddScoped<ICharacterService, CharacterService>();
+builder.Services.AddScoped<IWeaponService, WeaponService>();
+
+// inject repository
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 var app = builder.Build();

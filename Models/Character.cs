@@ -12,5 +12,7 @@ namespace dotnet_rpg.Models
         public RpgClass Class { get; set; } = RpgClass.Knight;
         /// Add relationship: a character can have one user
         public User? User { get; set; }
+
+        public Weapon? Weapon { get; set; }
     }
 }
