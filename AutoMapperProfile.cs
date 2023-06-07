@@ -1,4 +1,5 @@
 using dotnet_rpg.DTOs.Character;
+using dotnet_rpg.DTOs.Skill;
 using dotnet_rpg.DTOs.Weapon;
 
 namespace dotnet_rpg
@@ -20,6 +21,8 @@ namespace dotnet_rpg
             /// Get the complete character back with the related weapon. 
             /// Before creating it here, it was possible to add a weapon to a characer ID but the response Model did not show the WeaponResponseDto properties.
             CreateMap<Weapon, GetWeaponResponseDto>();
+
+            CreateMap<Skill, GetSkillResponseDto>();
         }
     }
 }

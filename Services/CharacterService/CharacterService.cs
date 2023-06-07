@@ -102,7 +102,11 @@ namespace dotnet_rpg.Services.CharacterService
                 /// passing the current user from the controller to the service
                 /// Entity Framework enables access to the user object and its ID
                 /// and get the characters that have the proper ID set in the db table.
-                var dbCharacters = await _context.Characters.Where(character =>
+                var dbCharacters = await _context.Characters
+                    // included added later when weapons and skills were available to present the complete character picture
+                    .Include(character => character.Weapon)
+                    .Include(character => character.Skills)
+                    .Where(character =>
                     character.User!.Id == GetuserId()).ToListAsync();
 
                 serviceResponse.Data = dbCharacters.Select(c =>
@@ -124,9 +128,13 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 /// Use LINQ to find character by Id. 
-                var dbCharacter = await _context.Characters.FirstOrDefaultAsync(character =>
-                        character.Id == id && character.User!.Id == GetuserId()
-                );
+                var dbCharacter = await _context.Characters
+                // included added later when weapons and skills were available to present the complete character picture
+                    .Include(character => character.Weapon)
+                    .Include(character => character.Skills)
+                    .FirstOrDefaultAsync(character =>
+                            character.Id == id && character.User!.Id == GetuserId()
+                    );
 
                 serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(dbCharacter);
             }
@@ -172,6 +180,55 @@ namespace dotnet_rpg.Services.CharacterService
             {
                 serviceResponse.IsSuccess = false;
                 serviceResponse.Message = e.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<GetCharacterResponseDto>> AddCharacterSkill(AddCharacterSkillRequestDto newCharacterSkill)
+        {
+            // initialize serviceresponse
+            var serviceResponse = new ServiceResponse<GetCharacterResponseDto>();
+
+            try
+            {
+                // recieve correct character given by the character ID through the CharacterSkill DTO
+
+                // access character:
+                var character = await _context.Characters
+                    .Include(character => character.Weapon)
+                    .Include(character => character.Skills) // if you want to include much more (like side effects and stuff), use .thenInclude to continue including
+                    .FirstOrDefaultAsync(character => character.Id == newCharacterSkill.CharacterId &&
+                    character.User!.Id == GetuserId());
+
+                if (character is null)
+                {
+                    serviceResponse.IsSuccess = false;
+                    serviceResponse.Message = "Character not found";
+
+                    return serviceResponse;
+                }
+
+                var skill = await _context.Skills
+                    .FirstOrDefaultAsync(skill => skill.Id == newCharacterSkill.SkillId);
+
+                if (skill is null)
+                {
+                    serviceResponse.IsSuccess = false;
+                    serviceResponse.Message = "Skill not found";
+
+                    return serviceResponse;
+                }
+
+                character.Skills!.Add(skill);
+                await _context.SaveChangesAsync();
+                serviceResponse.Data = _mapper.Map<GetCharacterResponseDto>(character);
+
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = ex.Message;
             }
 
             return serviceResponse;

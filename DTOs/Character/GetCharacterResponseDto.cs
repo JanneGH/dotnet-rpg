@@ -1,3 +1,4 @@
+using dotnet_rpg.DTOs.Skill;
 using dotnet_rpg.DTOs.Weapon;
 
 namespace dotnet_rpg.DTOs.Character
@@ -13,5 +14,6 @@ namespace dotnet_rpg.DTOs.Character
         // Relates to the Enum created for Character classes
         public RpgClass Class { get; set; } = RpgClass.Knight;
         public GetWeaponResponseDto? Weapon { get; set; }
+        public List<GetSkillResponseDto>? Skills { get; set; }
     }
 }

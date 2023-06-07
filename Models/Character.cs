@@ -14,5 +14,6 @@ namespace dotnet_rpg.Models
         public User? User { get; set; }
         /// See Weapons model for explanation for determining main and dependent
         public Weapon? Weapon { get; set; }
+        public List<Skill>? Skills { get; set; }
     }
 }
