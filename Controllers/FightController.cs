@@ -15,6 +15,7 @@ namespace dotnet_rpg.Controllers
             _fightService = fightService;
         }
 
+        [HttpPost("Weapon")]
         public async Task<ActionResult<ServiceResponse<AttackResultResponseDto>>> WeaponAttack(WeaponAttackRequestDto request)
         {
             return Ok(await _fightService.WeaponAttack(request));
