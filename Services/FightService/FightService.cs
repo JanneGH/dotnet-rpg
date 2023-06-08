@@ -11,6 +11,73 @@ namespace dotnet_rpg.Services.FightService
             _context = context;
         }
 
+        public async Task<ServiceResponse<AttackResultResponseDto>> SkillAttack(SkillAttackRequestDto request)
+        {
+            var serviceResponse = new ServiceResponse<AttackResultResponseDto>();
+
+            try
+            {
+                /// TODO: alternative: characters needed. Could have used the CharacterService to receive the attacker or access the context characters directly. 
+                /// Only include the skill and find the character who's ID matches the Request Attacker ID.
+
+                var attacker = await _context.Characters
+                    .Include(character => character.Skills)
+                    .FirstOrDefaultAsync(character => character.Id == request.AttackerId);
+
+                var opponent = await _context.Characters
+                    .FirstOrDefaultAsync(character => character.Id == request.OpponentId);
+
+                if (attacker is null || opponent is null || attacker.Skills is null)
+                {
+                    throw new Exception("Something fishy is going on here");
+                }
+
+                /// Up to here was a copy of the WeaponAttack method.
+                /// Get the correct Skill. Since the skills of the rpg character are included in the var above, there is no need to access the skills separately via the context. Instead verify if the attacker really has the specific called skill. 
+                /// So: Initialize a new skill opbject and look through the attacker skills to find the one where the skill ID of the skill equals the request skill ID
+                var attackerSkill = attacker.Skills.FirstOrDefault(skill => skill.Id == request.SkillId);
+
+                if (attackerSkill is null)
+                {
+                    serviceResponse.IsSuccess = false;
+                    serviceResponse.Message = $"{attacker.Name} does not have that skill";
+
+                    return serviceResponse;
+                }
+
+                int damage = attackerSkill.Damage + (new Random().Next(attacker.Intelligence));
+                damage -= new Random().Next(opponent.Defence);
+
+                if (damage > 0)
+                {
+                    opponent.HitPoints -= damage;
+                }
+                if (opponent.HitPoints <= 0)
+                {
+                    serviceResponse.Message = $"{opponent.Name} has been defeated";
+                }
+
+                await _context.SaveChangesAsync();
+
+                // write the response data
+                serviceResponse.Data = new AttackResultResponseDto
+                {
+                    Attacker = attacker.Name,
+                    Opponent = opponent.Name,
+                    AttackerHp = attacker.HitPoints,
+                    OpponentHp = opponent.HitPoints,
+                    Damage = damage
+                };
+            }
+            catch (Exception ex)
+            {
+                serviceResponse.IsSuccess = false;
+                serviceResponse.Message = ex.Message;
+            }
+
+            return serviceResponse;
+        }
+
         public async Task<ServiceResponse<AttackResultResponseDto>> WeaponAttack(WeaponAttackRequestDto request)
         {
             var serviceResponse = new ServiceResponse<AttackResultResponseDto>();
