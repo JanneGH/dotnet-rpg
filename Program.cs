@@ -4,6 +4,7 @@ global using dotnet_rpg.Services.CharacterService;
 global using Microsoft.EntityFrameworkCore;
 
 using dotnet_rpg.Data;
+using dotnet_rpg.Services.FightService;
 using dotnet_rpg.Services.WeaponService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -72,6 +73,7 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 // Register the services
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 builder.Services.AddScoped<IWeaponService, WeaponService>();
+builder.Services.AddScoped<IFightService, FightService>();
 
 // Register repository
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();

@@ -109,8 +109,8 @@ namespace dotnet_rpg.Services.CharacterService
                     .Where(character =>
                     character.User!.Id == GetuserId()).ToListAsync();
 
-                serviceResponse.Data = dbCharacters.Select(c =>
-                    _mapper.Map<GetCharacterResponseDto>(c)).ToList();
+                serviceResponse.Data = dbCharacters.Select(character =>
+                    _mapper.Map<GetCharacterResponseDto>(character)).ToList();
             }
             catch (Exception e)
             {

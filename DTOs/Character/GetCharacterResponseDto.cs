@@ -13,6 +13,11 @@ namespace dotnet_rpg.DTOs.Character
         public int Intelligence { get; set; } = 10;
         // Relates to the Enum created for Character classes
         public RpgClass Class { get; set; } = RpgClass.Knight;
+
+        public int Fights { get; set; }
+        public int Victories { get; set; }
+        public int Defeats { get; set; }
+
         public GetWeaponResponseDto? Weapon { get; set; }
         public List<GetSkillResponseDto>? Skills { get; set; }
     }
