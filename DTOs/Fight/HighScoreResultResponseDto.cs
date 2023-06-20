@@ -1,7 +1,7 @@
 namespace dotnet_rpg.DTOs.Fight
 {
-    /// TODO: only a result Dto, a request object is not needed. Dive into this.
-    public class HighScoreResultDto
+    // Only a result Dto, a request object is not needed.
+    public class HighScoreResultResponseDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

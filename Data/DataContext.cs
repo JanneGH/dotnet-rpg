@@ -7,7 +7,7 @@ namespace dotnet_rpg.Data
         }
 
         /// Normally this would also require adding a service, controller etc.
-        /// But just to show that you can seed data to the db as well an override is used.
+        /// But just to show that it is possible to seed data to the db as well an override is used.
         /// As skills have no relationships this is a nice way to see this example in action.
         /// Just to show that EF7 + .NET7 do bulkupserts/inserts/deletes so EF Core does not make a separate "add data" call for each of the objects
         /// (visible in the Migration file)

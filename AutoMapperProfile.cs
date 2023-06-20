@@ -25,7 +25,7 @@ namespace dotnet_rpg
 
             CreateMap<Skill, GetSkillResponseDto>();
 
-            CreateMap<Character, HighScoreResultDto>();
+            CreateMap<Character, HighScoreResultResponseDto>();
         }
     }
 }

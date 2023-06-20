@@ -16,35 +16,6 @@ namespace dotnet_rpg.Data
             _context = context;
         }
 
-        public async Task<ServiceResponse<string>> Login(string username, string password)
-        {
-            var serviceResponse = new ServiceResponse<string>();
-
-            // get user
-            var user = await _context.Users.FirstOrDefaultAsync(u =>
-            u.Username.ToLower().Equals(username.ToLower()));
-
-            if (user is null)
-            {
-                serviceResponse.IsSuccess = false;
-                // TODO: Change in production. Message for testing purposes only!
-                serviceResponse.Message = "User not found";
-            }
-            // check password
-            else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-            {
-                serviceResponse.IsSuccess = false;
-                // TODO: Change in production. Message for testing purposes only!
-                serviceResponse.Message = "Wrong password";
-            }
-            else
-            {
-                serviceResponse.Data = CreateToken(user);
-            }
-
-            return serviceResponse;
-        }
-
         public async Task<ServiceResponse<int>> Register(User user, string password)
         {
             var serviceResponse = new ServiceResponse<int>();
@@ -72,6 +43,35 @@ namespace dotnet_rpg.Data
             {
                 serviceResponse.IsSuccess = false;
                 serviceResponse.Message = e.Message;
+            }
+
+            return serviceResponse;
+        }
+
+        public async Task<ServiceResponse<string>> Login(string username, string password)
+        {
+            var serviceResponse = new ServiceResponse<string>();
+
+            // get user
+            var user = await _context.Users.FirstOrDefaultAsync(u =>
+            u.Username.ToLower().Equals(username.ToLower()));
+
+            if (user is null)
+            {
+                serviceResponse.IsSuccess = false;
+                // TODO: Change in production. Message for testing purposes only!
+                serviceResponse.Message = "User not found";
+            }
+            // check password
+            else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+            {
+                serviceResponse.IsSuccess = false;
+                // TODO: Change in production. Message for testing purposes only!
+                serviceResponse.Message = "Wrong password";
+            }
+            else
+            {
+                serviceResponse.Data = CreateToken(user);
             }
 
             return serviceResponse;

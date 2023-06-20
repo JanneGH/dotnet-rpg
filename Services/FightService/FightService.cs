@@ -13,11 +13,11 @@ namespace dotnet_rpg.Services.FightService
             _context = context;
         }
 
-        public async Task<ServiceResponse<FightResultDto>> Fight(FightRequestDto request)
+        public async Task<ServiceResponse<FightResultResponseDto>> Fight(FightRequestDto request)
         {
-            var serviceResponse = new ServiceResponse<FightResultDto>
+            var serviceResponse = new ServiceResponse<FightResultResponseDto>
             {
-                Data = new FightResultDto()
+                Data = new FightResultResponseDto()
             };
 
             try
@@ -226,7 +226,7 @@ namespace dotnet_rpg.Services.FightService
             return serviceResponse;
         }
 
-        public async Task<ServiceResponse<List<HighScoreResultDto>>> GetHighScore()
+        public async Task<ServiceResponse<List<HighScoreResultResponseDto>>> GetHighScore()
         {
             var characters = await _context.Characters
                 .Where(character => character.Fights > 0)
@@ -234,9 +234,9 @@ namespace dotnet_rpg.Services.FightService
                 .ThenBy(character => character.Defeats)
             .ToListAsync();
 
-            var serviceResponse = new ServiceResponse<List<HighScoreResultDto>>()
+            var serviceResponse = new ServiceResponse<List<HighScoreResultResponseDto>>()
             {
-                Data = characters.Select(character => _mapper.Map<HighScoreResultDto>(character)).ToList()
+                Data = characters.Select(character => _mapper.Map<HighScoreResultResponseDto>(character)).ToList()
             };
 
             return serviceResponse;
