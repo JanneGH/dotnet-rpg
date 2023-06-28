@@ -31,7 +31,7 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 var character = _mapper.Map<Character>(newCharacter);
-                character.User = await _context.Users.FirstOrDefaultAsync(user =>
+                character.User = await _context.Users.SingleOrDefaultAsync(user =>
                     user.Id == GetuserId());
 
                 _context.Characters.Add(character);
@@ -65,7 +65,7 @@ namespace dotnet_rpg.Services.CharacterService
             try
             {
                 // retrieve the character
-                var character = await _context.Characters.FirstOrDefaultAsync(character =>
+                var character = await _context.Characters.SingleOrDefaultAsync(character =>
                     character.Id == id && character.User!.Id == GetuserId()
                 );
 
@@ -107,7 +107,7 @@ namespace dotnet_rpg.Services.CharacterService
                     .Include(character => character.Weapon)
                     .Include(character => character.Skills)
                     .Where(character =>
-                    character.User!.Id == GetuserId()).ToListAsync();
+                    character.User!.Id == GetuserId()).AsNoTracking().ToListAsync(); // AsNoTracking to improve performance since this is a readonly method
 
                 serviceResponse.Data = dbCharacters.Select(character =>
                     _mapper.Map<GetCharacterResponseDto>(character)).ToList();
@@ -130,9 +130,10 @@ namespace dotnet_rpg.Services.CharacterService
                 /// Use LINQ to find character by Id. 
                 var dbCharacter = await _context.Characters
                 // included added later when weapons and skills were available to present the complete character picture
+                /// SingleOrDefaultAsync as opposed to FirstOrDefaultAsync because I want an exception when ID is not available, not to default to another ID
                     .Include(character => character.Weapon)
                     .Include(character => character.Skills)
-                    .FirstOrDefaultAsync(character =>
+                    .SingleOrDefaultAsync(character =>
                             character.Id == id && character.User!.Id == GetuserId()
                     );
 
@@ -156,7 +157,7 @@ namespace dotnet_rpg.Services.CharacterService
                 var character = await _context.Characters
                 // to access related objects Include them
                 .Include(character => character.User)
-                .FirstOrDefaultAsync(character => character.Id == updatedCharacter.Id
+                .SingleOrDefaultAsync(character => character.Id == updatedCharacter.Id
                 );
 
                 if (character is null || character.User!.Id != GetuserId())
@@ -198,7 +199,7 @@ namespace dotnet_rpg.Services.CharacterService
                 var character = await _context.Characters
                     .Include(character => character.Weapon)
                     .Include(character => character.Skills) // if you want to include much more (like side effects and stuff), use .thenInclude to continue including
-                    .FirstOrDefaultAsync(character => character.Id == newCharacterSkill.CharacterId &&
+                    .SingleOrDefaultAsync(character => character.Id == newCharacterSkill.CharacterId &&
                     character.User!.Id == GetuserId());
 
                 if (character is null)

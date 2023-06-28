@@ -28,7 +28,7 @@ namespace dotnet_rpg.Services.WeaponService
                 // Get Character with the right Character ID in the Weapon object from the Character context
                 // Check if Character is an object that belongs to the current authorized User
                 var character = await _context.Characters
-                    .FirstOrDefaultAsync(cha =>
+                    .SingleOrDefaultAsync(cha =>
                         cha.Id == newWeapon.CharacterId &&
                         // Get the ID of the current User by accessing the NameIdentifyer claims value from the JSON webtoken.
                         cha.User!.Id == int.Parse(_httpContextAccessor.HttpContext!.User

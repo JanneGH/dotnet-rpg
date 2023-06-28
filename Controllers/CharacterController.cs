@@ -47,7 +47,7 @@ namespace dotnet_rpg.Controllers
         {
             // TODO: Add code if get fails
             // TODO: Add logging
-            // Using LINQ to get Character with Id 1
+            // Using LINQ to get Character with Id
             return Ok(await _characterService.GetCharacterById(id));
         }
 

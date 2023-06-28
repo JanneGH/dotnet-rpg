@@ -127,10 +127,10 @@ namespace dotnet_rpg.Services.FightService
 
                 var attacker = await _context.Characters
                     .Include(character => character.Skills)
-                    .FirstOrDefaultAsync(character => character.Id == request.AttackerId);
+                    .SingleOrDefaultAsync(character => character.Id == request.AttackerId);
 
                 var opponent = await _context.Characters
-                    .FirstOrDefaultAsync(character => character.Id == request.OpponentId);
+                    .SingleOrDefaultAsync(character => character.Id == request.OpponentId);
 
                 if (attacker is null || opponent is null || attacker.Skills is null)
                 {
@@ -189,10 +189,10 @@ namespace dotnet_rpg.Services.FightService
 
                 var attacker = await _context.Characters
                     .Include(character => character.Weapon)
-                    .FirstOrDefaultAsync(character => character.Id == request.AttackerId);
+                    .SingleOrDefaultAsync(character => character.Id == request.AttackerId);
 
                 var opponent = await _context.Characters
-                    .FirstOrDefaultAsync(character => character.Id == request.OpponentId);
+                    .SingleOrDefaultAsync(character => character.Id == request.OpponentId);
 
                 if (attacker is null || opponent is null || attacker.Weapon is null)
                 {
@@ -232,6 +232,7 @@ namespace dotnet_rpg.Services.FightService
                 .Where(character => character.Fights > 0)
                 .OrderByDescending(character => character.Victories)
                 .ThenBy(character => character.Defeats)
+            .AsNoTracking()
             .ToListAsync();
 
             var serviceResponse = new ServiceResponse<List<HighScoreResultResponseDto>>()
